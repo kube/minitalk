@@ -6,53 +6,62 @@
 /*   By: kube <kube@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2014/02/07 22:56:56 by kube              #+#    #+#             */
-/*   Updated: 2014/02/08 00:10:38 by kube             ###   ########.fr       */
+/*   Updated: 2014/02/09 23:17:28 by kube             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "client.h"
 #include <libft.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-static void		send_char(int pid, char c, int sleep_duration)
+static void				send_char()
 {
-	int			i;
-	int			bit;
+	int					i;
+	int					bit;
 
 	i = 0;
-	ft_putchar('\n');
 	while (i < 8)
 	{
-		bit = (c >> (7 - i)) & 1;
-		ft_putchar('0' + bit);
+		bit = (env.message[env.i] >> (7 - i)) & 1;
 		if (bit)
-			kill(pid, SIGUSR1);	
+			kill(env.server, SIGUSR1);
 		else
-			kill(pid, SIGUSR2);	
-		usleep(sleep_duration);
+			kill(env.server, SIGUSR2);	
+		usleep(BIT_LATENCY);
 		i++;
 	}
 }
 
-static void		send_message(int pid, char *message, int sleep_duration)
+static void				update_send(int sig, siginfo_t *siginfo, void *context)
 {
-	while (*message)
-	{
-		ft_putchar(*message);
-		send_char(pid, *message, sleep_duration);
-		message++;
-	}
+	(void)context;
+	if ((int)siginfo->si_pid == env.server && sig == SIGUSR1)
+		env.i++;
+	send_char();
+	if (!env.message[env.i])
+		exit (0);
 }
 
-int				main(int argc, char **argv)
+int						main(int argc, char **argv)
 {
-	int		pid;
+	struct sigaction	act;
 
-	if (argc == 4)
+	if (argc == 3)
 	{
-		pid = ft_atoi(argv[1]);
-		send_message(pid, argv[2], ft_atoi(argv[3]));
+		ft_bzero(&act, sizeof(act));
+		act.sa_sigaction = &update_send;
+		act.sa_flags = SA_SIGINFO;
+		if (sigaction(SIGUSR1, &act, NULL) < 0
+			|| sigaction(SIGUSR2, &act, NULL) < 0)
+			return 1;
+		env.server = ft_atoi(argv[1]);
+		env.i = 0;
+		env.message = argv[2];
+		send_char();
+		while (1)
+			usleep(1000);
 	}
 	return (0);
 }

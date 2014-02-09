@@ -3,14 +3,14 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: cfeijoo <cfeijoo@student.42.fr>            +#+  +:+       +#+         #
+#    By: kube <kube@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2013/12/14 02:31:26 by cfeijoo           #+#    #+#              #
-#    Updated: 2014/01/26 17:20:26 by cfeijoo          ###   ########.fr        #
+#    Updated: 2014/02/09 18:46:46 by kube             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SERVERNAME = server
+SERVERNAME = serveur
 CLIENTNAME = client
 
 INCLUDEFOLDERS = -I./includes/ -I./libft/includes
